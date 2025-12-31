@@ -1,14 +1,14 @@
 import asyncio
 import json
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any
 
 from dateutil import parser as dateparser
 
 from .auth import ZoAuth
 from .avatar import ZoAvatar
 from .client import ZoApiClient, ZoPassportConfig
-from .exceptions import ZoAuthenticationError, ZoStorageError, ZoTokenRefreshError
+from .exceptions import ZoStorageError
 from .profile import ZoProfile
 from .storage import STORAGE_KEYS, FileStorageAdapter, StorageAdapter
 from .types import ZoAuthResponse, ZoUser
@@ -28,7 +28,7 @@ class ZoPassportSDK:
         self,
         client_key: str,
         base_url: str = "https://api.io.zo.xyz",
-        storage_adapter: Optional[StorageAdapter] = None,
+        storage_adapter: StorageAdapter | None = None,
         auto_refresh: bool = True,
         refresh_interval: int = 60000,  # ms
         debug: bool = False,
@@ -72,11 +72,11 @@ class ZoPassportSDK:
         self.wallet = ZoWallet(self.client)
 
         # Session state
-        self._user: Optional[ZoUser] = None
+        self._user: ZoUser | None = None
         self._is_authenticated: bool = False
 
         # Auto-refresh configuration
-        self._refresh_task: Optional[asyncio.Task] = None
+        self._refresh_task: asyncio.Task | None = None
         self._auto_refresh = auto_refresh
         self._refresh_interval_ms = refresh_interval
         self._shutdown = False
@@ -126,7 +126,7 @@ class ZoPassportSDK:
 
     async def login_with_phone(
         self, country_code: str, phone_number: str, otp: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Authenticate user with phone number and OTP.
 
@@ -172,12 +172,8 @@ class ZoPassportSDK:
         """
         await self.storage.set_item(STORAGE_KEYS["ACCESS_TOKEN"], auth_data.access_token)
         await self.storage.set_item(STORAGE_KEYS["REFRESH_TOKEN"], auth_data.refresh_token)
-        await self.storage.set_item(
-            STORAGE_KEYS["TOKEN_EXPIRY"], auth_data.access_token_expiry
-        )
-        await self.storage.set_item(
-            STORAGE_KEYS["REFRESH_EXPIRY"], auth_data.refresh_token_expiry
-        )
+        await self.storage.set_item(STORAGE_KEYS["TOKEN_EXPIRY"], auth_data.access_token_expiry)
+        await self.storage.set_item(STORAGE_KEYS["REFRESH_EXPIRY"], auth_data.refresh_token_expiry)
         await self.storage.set_item(STORAGE_KEYS["USER"], auth_data.user.model_dump_json())
 
         if auth_data.device_id:
@@ -298,7 +294,7 @@ class ZoPassportSDK:
                 await asyncio.sleep(interval_seconds)
 
     @property
-    def user(self) -> Optional[ZoUser]:
+    def user(self) -> ZoUser | None:
         """
         Get the current authenticated user.
 

@@ -1,7 +1,9 @@
 """Tests for avatar module."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
 from zopassport.avatar import ZoAvatar
 from zopassport.exceptions import ZoAvatarError, ZoValidationError
 

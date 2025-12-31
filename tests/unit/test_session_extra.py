@@ -1,12 +1,13 @@
 """Extra tests for session module coverage."""
 
-import pytest
 import asyncio
-import json
-from unittest.mock import AsyncMock, MagicMock, patch
-from zopassport.session import ZoPassportSDK, STORAGE_KEYS
-from zopassport.types import ZoAuthResponse, ZoUser
+from unittest.mock import AsyncMock, patch
+
+import pytest
+
 from zopassport.exceptions import ZoStorageError
+from zopassport.session import STORAGE_KEYS, ZoPassportSDK
+from zopassport.types import ZoAuthResponse, ZoUser
 
 
 class TestZoSessionExtra:

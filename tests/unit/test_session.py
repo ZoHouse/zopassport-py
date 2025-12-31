@@ -1,10 +1,11 @@
 """Tests for ZoPassportSDK session management."""
 
-import pytest
-import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
-from zopassport.session import ZoPassportSDK, STORAGE_KEYS
-from zopassport.exceptions import ZoAuthenticationError, ZoNetworkError
+
+import pytest
+
+from zopassport.session import STORAGE_KEYS, ZoPassportSDK
+
 
 class TestZoPassportSDK:
     """Tests for ZoPassportSDK class."""
@@ -14,7 +15,7 @@ class TestZoPassportSDK:
         return ZoPassportSDK(
             client_key="test_key",
             storage_adapter=mock_storage,
-            auto_refresh=False  # Disable for unit tests to control manually
+            auto_refresh=False,  # Disable for unit tests to control manually
         )
 
     @pytest.mark.asyncio
@@ -22,7 +23,9 @@ class TestZoPassportSDK:
         """Test initialization loads existing session."""
         # Setup storage with valid session
         await mock_storage.set_item(STORAGE_KEYS["ACCESS_TOKEN"], "valid_token")
-        await mock_storage.set_item(STORAGE_KEYS["USER"], '{"id": "user_123", "first_name": "Test"}')
+        await mock_storage.set_item(
+            STORAGE_KEYS["USER"], '{"id": "user_123", "first_name": "Test"}'
+        )
 
         await sdk.initialize()
 
@@ -46,21 +49,25 @@ class TestZoPassportSDK:
     @pytest.mark.asyncio
     async def test_login_success(self, sdk, mock_auth_response):
         """Test successful login."""
-        sdk.auth.verify_otp = AsyncMock(return_value={
-            "success": True,
-            "data": MagicMock(
-                user=MagicMock(**mock_auth_response["user"]),
-                access_token="new_token",
-                refresh_token="new_refresh",
-                access_token_expiry="2025-01-01T00:00:00Z",
-                refresh_token_expiry="2026-01-01T00:00:00Z",
-                device_id="dev_id",
-                device_secret="dev_secret"
-            )
-        })
-        
+        sdk.auth.verify_otp = AsyncMock(
+            return_value={
+                "success": True,
+                "data": MagicMock(
+                    user=MagicMock(**mock_auth_response["user"]),
+                    access_token="new_token",
+                    refresh_token="new_refresh",
+                    access_token_expiry="2025-01-01T00:00:00Z",
+                    refresh_token_expiry="2026-01-01T00:00:00Z",
+                    device_id="dev_id",
+                    device_secret="dev_secret",
+                ),
+            }
+        )
+
         # Configure the mock object to return dict/json dump for storage
-        sdk.auth.verify_otp.return_value["data"].user.model_dump_json.return_value = '{"id": "user_123"}'
+        sdk.auth.verify_otp.return_value["data"].user.model_dump_json.return_value = (
+            '{"id": "user_123"}'
+        )
 
         result = await sdk.login_with_phone("91", "9876543210", "123456")
 
@@ -86,18 +93,20 @@ class TestZoPassportSDK:
     async def test_auto_refresh_logic(self, sdk):
         """Test auto-refresh logic trigger."""
         sdk._is_authenticated = True
-        sdk.storage.get_item = AsyncMock(side_effect=lambda k: 
-            "2025-01-01T12:00:00Z" if k == STORAGE_KEYS["TOKEN_EXPIRY"] else None
+        sdk.storage.get_item = AsyncMock(
+            side_effect=lambda k: (
+                "2025-01-01T12:00:00Z" if k == STORAGE_KEYS["TOKEN_EXPIRY"] else None
+            )
         )
-        
+
         # Mock time to be just before expiry (less than 5 mins)
         with patch("zopassport.session.datetime") as mock_datetime:
             # Current time is 11:56 (4 mins before expiry)
             mock_datetime.now.return_value.replace.return_value = MagicMock()
             # This part is tricky to mock correctly with timezone awareness in code
             # So we'll test _should_refresh_token logic directly by mocking its internal checks
-            
-            pass 
+
+            pass
 
     @pytest.mark.asyncio
     async def test_close(self, sdk):

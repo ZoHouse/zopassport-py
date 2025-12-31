@@ -2,7 +2,6 @@ import abc
 import base64
 import json
 import os
-from typing import Optional
 
 import aiofiles
 from cryptography.fernet import Fernet, InvalidToken
@@ -16,7 +15,7 @@ class StorageAdapter(abc.ABC):
     """Abstract base class for storage adapters."""
 
     @abc.abstractmethod
-    async def get_item(self, key: str) -> Optional[str]:
+    async def get_item(self, key: str) -> str | None:
         """
         Retrieve an item from storage.
 
@@ -66,7 +65,7 @@ class MemoryStorageAdapter(StorageAdapter):
         """Initialize in-memory storage."""
         self._store: dict[str, str] = {}
 
-    async def get_item(self, key: str) -> Optional[str]:
+    async def get_item(self, key: str) -> str | None:
         """Get item from memory."""
         return self._store.get(key)
 
@@ -98,9 +97,9 @@ class FileStorageAdapter(StorageAdapter):
         # Pre-load cache if file exists
         if os.path.exists(self.file_path):
             try:
-                with open(self.file_path, "r") as f:
+                with open(self.file_path) as f:
                     self._cache = json.load(f)
-            except (json.JSONDecodeError, IOError) as e:
+            except (OSError, json.JSONDecodeError) as e:
                 raise ZoStorageError(
                     f"Failed to load storage file: {self.file_path}",
                     details={"error": str(e)},
@@ -116,13 +115,13 @@ class FileStorageAdapter(StorageAdapter):
         try:
             async with aiofiles.open(self.file_path, "w") as f:
                 await f.write(json.dumps(self._cache, indent=2))
-        except (IOError, OSError) as e:
+        except OSError as e:
             raise ZoStorageError(
                 f"Failed to save storage file: {self.file_path}",
                 details={"error": str(e)},
             ) from e
 
-    async def get_item(self, key: str) -> Optional[str]:
+    async def get_item(self, key: str) -> str | None:
         """Get item from file storage."""
         return self._cache.get(key)
 
@@ -170,8 +169,8 @@ class EncryptedFileStorageAdapter(StorageAdapter):
     def __init__(
         self,
         file_path: str = "zopassport_session.enc",
-        password: Optional[str] = None,
-        key_file: Optional[str] = None,
+        password: str | None = None,
+        key_file: str | None = None,
     ) -> None:
         """
         Initialize encrypted file storage.
@@ -209,7 +208,7 @@ class EncryptedFileStorageAdapter(StorageAdapter):
                         f.write(key)
                     # Set restrictive permissions (owner read/write only)
                     os.chmod(key_file, 0o600)
-                except (IOError, OSError) as e:
+                except OSError as e:
                     raise ZoStorageError(
                         f"Failed to save encryption key to {key_file}",
                         details={"error": str(e)},
@@ -227,7 +226,7 @@ class EncryptedFileStorageAdapter(StorageAdapter):
                         f.write(key)
                     # Set restrictive permissions (owner read/write only)
                     os.chmod(key_file, 0o600)
-                except (IOError, OSError) as e:
+                except OSError as e:
                     raise ZoStorageError(
                         f"Failed to save encryption key to {key_file}",
                         details={"error": str(e)},
@@ -245,7 +244,7 @@ class EncryptedFileStorageAdapter(StorageAdapter):
                     "Failed to decrypt storage file - invalid key or corrupted data",
                     details={"file_path": self.file_path},
                 ) from e
-            except (json.JSONDecodeError, IOError) as e:
+            except (OSError, json.JSONDecodeError) as e:
                 raise ZoStorageError(
                     f"Failed to load encrypted storage file: {self.file_path}",
                     details={"error": str(e)},
@@ -300,7 +299,7 @@ class EncryptedFileStorageAdapter(StorageAdapter):
             with open(key_file, "rb") as f:
                 key = f.read()
             return Fernet(key)
-        except (IOError, OSError) as e:
+        except OSError as e:
             raise ZoEncryptionError(
                 f"Failed to load encryption key from {key_file}",
                 details={"error": str(e)},
@@ -338,13 +337,13 @@ class EncryptedFileStorageAdapter(StorageAdapter):
                 "Failed to encrypt data",
                 details={"file_path": self.file_path},
             ) from e
-        except (IOError, OSError) as e:
+        except OSError as e:
             raise ZoStorageError(
                 f"Failed to save encrypted storage file: {self.file_path}",
                 details={"error": str(e)},
             ) from e
 
-    async def get_item(self, key: str) -> Optional[str]:
+    async def get_item(self, key: str) -> str | None:
         """Get item from encrypted storage."""
         return self._cache.get(key)
 

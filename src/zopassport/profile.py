@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 from .client import ZoApiClient
 from .exceptions import ZoAPIError, ZoProfileError, ZoValidationError
@@ -18,7 +18,7 @@ class ZoProfile:
         """
         self.client = client
 
-    async def get_profile(self, access_token: str) -> Dict[str, Any]:
+    async def get_profile(self, access_token: str) -> dict[str, Any]:
         """
         Get user profile information.
 
@@ -70,7 +70,7 @@ class ZoProfile:
                 details={"error_type": type(e).__name__},
             ) from e
 
-    async def update_profile(self, access_token: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+    async def update_profile(self, access_token: str, updates: dict[str, Any]) -> dict[str, Any]:
         """
         Update user profile information.
 
@@ -99,9 +99,7 @@ class ZoProfile:
 
             if response.status_code >= 400:
                 data = response.json()
-                error_msg = (
-                    data.get("detail") or data.get("message") or "Failed to update profile"
-                )
+                error_msg = data.get("detail") or data.get("message") or "Failed to update profile"
                 raise ZoAPIError(
                     error_msg,
                     status_code=response.status_code,

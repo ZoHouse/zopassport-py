@@ -1,8 +1,11 @@
 """Extra tests for auth module coverage."""
 
-import pytest
 from unittest.mock import MagicMock
+
+import pytest
+
 from zopassport.auth import ZoAuth
+
 
 class TestZoAuthExtra:
     """Extra tests for ZoAuth."""

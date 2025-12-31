@@ -1,6 +1,5 @@
 import logging
 import sys
-from typing import Optional
 
 
 def setup_logger(name: str = "zopassport", level: str = "INFO") -> logging.Logger:
@@ -45,7 +44,7 @@ def set_log_level(level: str) -> None:
     logger.setLevel(level)
 
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def get_logger(name: str | None = None) -> logging.Logger:
     """
     Get a logger instance.
 

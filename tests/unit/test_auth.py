@@ -1,10 +1,13 @@
 """Tests for authentication module."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
 from zopassport.auth import ZoAuth
-from zopassport.exceptions import ZoAuthenticationError, ZoValidationError, ZoAPIError
+from zopassport.exceptions import ZoAuthenticationError, ZoValidationError
 from zopassport.types import ZoAuthResponse
+
 
 class TestZoAuth:
     """Tests for ZoAuth class."""
@@ -28,7 +31,7 @@ class TestZoAuth:
         mock_client.request.return_value = mock_response
 
         result = await auth.send_otp("91", "9876543210")
-        
+
         assert result["success"] is True
         assert result["message"] == "OTP sent successfully"
         mock_client.request.assert_called_once()
@@ -63,7 +66,7 @@ class TestZoAuth:
 
         with pytest.raises(ZoAuthenticationError) as excinfo:
             await auth.verify_otp("91", "9876543210", "000000")
-        
+
         assert "Invalid OTP" in str(excinfo.value)
 
     @pytest.mark.asyncio

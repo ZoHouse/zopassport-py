@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, TypedDict
 
 import httpx
 
@@ -6,7 +6,14 @@ from .client import ZoApiClient
 from .exceptions import ZoNetworkError, ZoWalletError
 from .utils import logger
 
-ZO_TOKEN_CONFIG = {
+
+class NetworkConfig(TypedDict):
+    rpc: str
+    contractAddress: str
+    decimals: int
+
+
+ZO_TOKEN_CONFIG: dict[str, NetworkConfig] = {
     "base": {
         "rpc": "https://mainnet.base.org",
         "contractAddress": "0x111142c7ecaf39797b7865b82034269962142069",
@@ -34,7 +41,7 @@ class ZoWallet:
         """
         self.client = client
         self.cached_balance: float = 0.0
-        self.user_wallet_address: Optional[str] = None
+        self.user_wallet_address: str | None = None
         self.network: str = "base"
 
     def set_wallet_address(self, address: str, network: str = "base") -> None:
@@ -81,7 +88,7 @@ class ZoWallet:
             details={"wallet_address": self.user_wallet_address, "network": self.network},
         )
 
-    async def _get_on_chain_balance(self) -> Optional[float]:
+    async def _get_on_chain_balance(self) -> float | None:
         """
         Fetch balance directly from blockchain RPC.
 
@@ -97,9 +104,7 @@ class ZoWallet:
             return None
 
         try:
-            padded_address = (
-                self.user_wallet_address.lower().replace("0x", "").rjust(64, "0")
-            )
+            padded_address = self.user_wallet_address.lower().replace("0x", "").rjust(64, "0")
             data = ERC20_BALANCE_ABI + padded_address
 
             payload = {
@@ -110,7 +115,8 @@ class ZoWallet:
             }
 
             async with httpx.AsyncClient() as client:
-                response = await client.post(config["rpc"], json=payload, timeout=5.0)
+                rpc_url = str(config["rpc"])
+                response = await client.post(rpc_url, json=payload, timeout=5.0)
                 result = response.json()
 
                 if "error" in result:
@@ -118,7 +124,7 @@ class ZoWallet:
                     return None
 
                 raw_balance = int(result.get("result", "0x0"), 16)
-                balance = raw_balance / (10 ** config["decimals"])
+                balance = float(raw_balance / (10 ** int(config["decimals"])))
                 logger.debug(f"On-chain balance: {balance}")
                 return balance
 
@@ -132,7 +138,7 @@ class ZoWallet:
             logger.warning(f"Unexpected error fetching on-chain balance: {e}")
             return None
 
-    async def _get_balance_from_api(self) -> Optional[float]:
+    async def _get_balance_from_api(self) -> float | None:
         """
         Fetch balance from ZoPassport API endpoints.
 
@@ -176,7 +182,7 @@ class ZoWallet:
 
         return None
 
-    async def get_transactions(self, page: Optional[int] = None) -> Dict[str, Any]:
+    async def get_transactions(self, page: int | None = None) -> dict[str, Any]:
         """
         Get transaction history.
 
@@ -190,12 +196,12 @@ class ZoWallet:
             ZoWalletError: If all transaction endpoints fail
         """
         endpoints = [
-            f"/api/v1/profile/completion-grants/claims?page={page}"
-            if page
-            else "/api/v1/profile/completion-grants/claims",
-            f"/api/v1/wallet/transactions?page={page}"
-            if page
-            else "/api/v1/wallet/transactions",
+            (
+                f"/api/v1/profile/completion-grants/claims?page={page}"
+                if page
+                else "/api/v1/profile/completion-grants/claims"
+            ),
+            f"/api/v1/wallet/transactions?page={page}" if page else "/api/v1/wallet/transactions",
         ]
 
         for endpoint in endpoints:
@@ -211,9 +217,7 @@ class ZoWallet:
 
                 return {
                     "transactions": (
-                        inner_data.get("results")
-                        or inner_data.get("transactions")
-                        or []
+                        inner_data.get("results") or inner_data.get("transactions") or []
                     ),
                     "next": inner_data.get("next"),
                     "previous": inner_data.get("previous"),

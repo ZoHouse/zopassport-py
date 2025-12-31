@@ -6,8 +6,9 @@ exponential backoff for network requests.
 """
 
 import asyncio
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, TypeVar, cast
+from typing import Any, TypeVar
 
 from tenacity import (
     AsyncRetrying,

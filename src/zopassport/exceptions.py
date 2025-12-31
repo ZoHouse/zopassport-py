@@ -5,7 +5,7 @@ This module defines the exception hierarchy for the SDK, providing
 specific error types for different failure scenarios.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class ZoPassportError(Exception):
@@ -16,7 +16,7 @@ class ZoPassportError(Exception):
     allowing users to catch all SDK-specific errors with a single except clause.
     """
 
-    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None) -> None:
+    def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
         """
         Initialize the exception.
 
@@ -85,8 +85,8 @@ class ZoNetworkError(ZoPassportError):
     def __init__(
         self,
         message: str,
-        status_code: Optional[int] = None,
-        details: Optional[Dict[str, Any]] = None,
+        status_code: int | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the network error.
@@ -126,8 +126,8 @@ class ZoRateLimitError(ZoNetworkError):
     def __init__(
         self,
         message: str,
-        retry_after: Optional[int] = None,
-        details: Optional[Dict[str, Any]] = None,
+        retry_after: int | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the rate limit error.
@@ -251,8 +251,8 @@ class ZoRetryExhaustedError(ZoNetworkError):
         self,
         message: str,
         attempts: int,
-        last_error: Optional[Exception] = None,
-        details: Optional[Dict[str, Any]] = None,
+        last_error: Exception | None = None,
+        details: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize the retry exhausted error.

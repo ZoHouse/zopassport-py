@@ -3,16 +3,16 @@ Pytest configuration and shared fixtures for ZoPassport SDK tests.
 """
 
 import asyncio
-from typing import AsyncGenerator, Dict, Any
-import pytest
-import pytest_asyncio
+from collections.abc import AsyncGenerator
+from typing import Any
 from unittest.mock import AsyncMock, Mock
 
-from zopassport import ZoPassportSDK, ZoPassportConfig
+import pytest
+import pytest_asyncio
+
+from zopassport import ZoPassportConfig, ZoPassportSDK
 from zopassport.client import ZoApiClient
 from zopassport.storage import MemoryStorageAdapter
-from zopassport.types import ZoUser, ZoAuthResponse
-
 
 # Configure pytest-asyncio
 pytest_plugins = ("pytest_asyncio",)
@@ -33,7 +33,7 @@ def client_key() -> str:
 
 
 @pytest.fixture
-def mock_user_data() -> Dict[str, Any]:
+def mock_user_data() -> dict[str, Any]:
     """Fixture for mock user data."""
     return {
         "id": "user_123",
@@ -48,7 +48,7 @@ def mock_user_data() -> Dict[str, Any]:
 
 
 @pytest.fixture
-def mock_auth_response(mock_user_data: Dict[str, Any]) -> Dict[str, Any]:
+def mock_auth_response(mock_user_data: dict[str, Any]) -> dict[str, Any]:
     """Fixture for mock authentication response."""
     return {
         "user": mock_user_data,
@@ -101,9 +101,9 @@ def mock_httpx_response():
 
     def _create_response(
         status_code: int = 200,
-        json_data: Dict[str, Any] = None,
-        headers: Dict[str, str] = None,
-    ):
+        json_data: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> Mock:
         response = Mock()
         response.status_code = status_code
         response.headers = headers or {}

@@ -1,10 +1,10 @@
 import asyncio
-import httpx
 import secrets
 import string
 import time
-from typing import Any, Dict, Optional
+from typing import Any
 
+import httpx
 from tenacity import (
     AsyncRetrying,
     retry_if_exception_type,
@@ -21,7 +21,6 @@ from .exceptions import (
     ZoTokenRefreshError,
 )
 from .storage import STORAGE_KEYS, MemoryStorageAdapter, StorageAdapter
-from .types import ZoTokenRefreshResponse
 from .utils import logger
 
 
@@ -33,7 +32,7 @@ class ZoPassportConfig:
         client_key: str,
         base_url: str = "https://api.io.zo.xyz",
         timeout: int = 10,
-        storage_adapter: Optional[StorageAdapter] = None,
+        storage_adapter: StorageAdapter | None = None,
         max_retries: int = 3,
         retry_backoff_factor: float = 1.5,
     ) -> None:
@@ -56,7 +55,7 @@ class ZoPassportConfig:
         self.retry_backoff_factor = retry_backoff_factor
 
 
-def generate_device_credentials() -> Dict[str, str]:
+def generate_device_credentials() -> dict[str, str]:
     """
     Generate unique device credentials.
 
@@ -97,7 +96,7 @@ class ZoApiClient:
         )
         self._refresh_lock = asyncio.Lock()
 
-    async def _get_auth_headers(self) -> Dict[str, str]:
+    async def _get_auth_headers(self) -> dict[str, str]:
         """
         Build authentication headers for requests.
 
@@ -121,7 +120,7 @@ class ZoApiClient:
 
         return headers
 
-    async def _get_or_create_device_credentials(self) -> Dict[str, str]:
+    async def _get_or_create_device_credentials(self) -> dict[str, str]:
         """
         Get existing device credentials or create new ones.
 

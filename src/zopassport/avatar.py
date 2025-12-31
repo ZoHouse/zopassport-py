@@ -1,5 +1,6 @@
 import asyncio
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 from .client import ZoApiClient
 from .exceptions import ZoAPIError, ZoAvatarError, ZoValidationError
@@ -18,7 +19,7 @@ class ZoAvatar:
         """
         self.client = client
 
-    async def generate_avatar(self, access_token: str, body_type: str) -> Dict[str, Any]:
+    async def generate_avatar(self, access_token: str, body_type: str) -> dict[str, Any]:
         """
         Start avatar generation task.
 
@@ -50,9 +51,7 @@ class ZoAvatar:
 
             if response.status_code >= 400:
                 data = response.json()
-                error_msg = (
-                    data.get("detail") or data.get("message") or "Failed to generate avatar"
-                )
+                error_msg = data.get("detail") or data.get("message") or "Failed to generate avatar"
                 raise ZoAPIError(
                     error_msg,
                     status_code=response.status_code,
@@ -75,7 +74,7 @@ class ZoAvatar:
                 details={"error_type": type(e).__name__, "body_type": body_type},
             ) from e
 
-    async def get_avatar_status(self, access_token: str, task_id: str) -> Dict[str, Any]:
+    async def get_avatar_status(self, access_token: str, task_id: str) -> dict[str, Any]:
         """
         Get status of avatar generation task.
 
@@ -133,9 +132,9 @@ class ZoAvatar:
         self,
         access_token: str,
         task_id: str,
-        on_progress: Optional[Callable[[str], None]] = None,
-        on_complete: Optional[Callable[[str], None]] = None,
-        on_error: Optional[Callable[[str], None]] = None,
+        on_progress: Callable[[str], None] | None = None,
+        on_complete: Callable[[str], None] | None = None,
+        on_error: Callable[[str], None] | None = None,
         max_attempts: int = 30,
         interval_seconds: float = 2.0,
     ) -> None:

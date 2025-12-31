@@ -55,25 +55,25 @@ async def main():
         debug=True  # Enable debug logging
     )
     await sdk.initialize()
-    
+
     # Check if already authenticated
     if sdk.is_authenticated:
         print(f"Welcome back, {sdk.user.first_name}!")
     else:
         # Step 1: Send OTP
         await sdk.auth.send_otp("91", "9876543210")
-        
+
         # Step 2: Verify OTP and login
         otp = input("Enter OTP: ")
         result = await sdk.login_with_phone("91", "9876543210", otp)
-        
+
         if result["success"]:
             print(f"Logged in as {result['user'].first_name}")
 
     # Get wallet balance
     balance = await sdk.wallet.get_balance()
     print(f"Balance: {balance} $Zo")
-    
+
     # Cleanup
     await sdk.close()
 
@@ -264,11 +264,11 @@ class CustomStorage(StorageAdapter):
     async def get_item(self, key: str) -> Optional[str]:
         # Your implementation
         pass
-    
+
     async def set_item(self, key: str, value: str) -> None:
         # Your implementation
         pass
-    
+
     async def remove_item(self, key: str) -> None:
         # Your implementation
         pass

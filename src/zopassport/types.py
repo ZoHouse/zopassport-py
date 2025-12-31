@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -7,53 +7,53 @@ class ZoAvatar(BaseModel):
     """User avatar information."""
 
     status: str
-    image: Optional[str] = None
+    image: str | None = None
 
 
 class ZoUser(BaseModel):
     """Zo World user profile."""
 
     id: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    bio: Optional[str] = None
-    date_of_birth: Optional[str] = None
-    place_name: Optional[str] = None
-    body_type: Optional[str] = None
-    pfp_image: Optional[str] = None
-    email_address: Optional[str] = None
-    mobile_country_code: Optional[str] = None
-    mobile_number: Optional[str] = None
-    wallet_address: Optional[str] = None
-    membership: Optional[str] = None
-    cultures: Optional[List[str]] = None
-    avatar: Optional[ZoAvatar] = None
-    role: Optional[str] = None
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    bio: str | None = None
+    date_of_birth: str | None = None
+    place_name: str | None = None
+    body_type: str | None = None
+    pfp_image: str | None = None
+    email_address: str | None = None
+    mobile_country_code: str | None = None
+    mobile_number: str | None = None
+    wallet_address: str | None = None
+    membership: str | None = None
+    cultures: list[str] | None = None
+    avatar: ZoAvatar | None = None
+    role: str | None = None
+    created_at: str | None = None
+    updated_at: str | None = None
 
 
 class ZoProfileResponse(BaseModel):
     """User profile API response."""
 
     id: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    bio: Optional[str] = None
-    date_of_birth: Optional[str] = None
-    location: Optional[Dict[str, Any]] = None
-    body_type: Optional[str] = None
-    pfp_image: Optional[str] = None
-    email_address: Optional[str] = None
-    mobile_country_code: Optional[str] = None
-    mobile_number: Optional[str] = None
-    wallet_address: Optional[str] = None
-    zo_membership: Optional[str] = None
-    cultures: Optional[List[str]] = None
-    avatar: Optional[ZoAvatar] = None
-    founder_nfts: Optional[List[Any]] = None
-    founder_nfts_count: Optional[int] = None
-    role: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    bio: str | None = None
+    date_of_birth: str | None = None
+    location: dict[str, Any] | None = None
+    body_type: str | None = None
+    pfp_image: str | None = None
+    email_address: str | None = None
+    mobile_country_code: str | None = None
+    mobile_number: str | None = None
+    wallet_address: str | None = None
+    zo_membership: str | None = None
+    cultures: list[str] | None = None
+    avatar: ZoAvatar | None = None
+    founder_nfts: list[Any] | None = None
+    founder_nfts_count: int | None = None
+    role: str | None = None
 
 
 class ZoAuthResponse(BaseModel):
@@ -64,8 +64,8 @@ class ZoAuthResponse(BaseModel):
     refresh_token: str
     access_token_expiry: str
     refresh_token_expiry: str
-    device_id: Optional[str] = None
-    device_secret: Optional[str] = None
+    device_id: str | None = None
+    device_secret: str | None = None
 
 
 class ZoTokenRefreshResponse(BaseModel):
@@ -80,11 +80,11 @@ class ZoTokenRefreshResponse(BaseModel):
 class ZoErrorResponse(BaseModel):
     """Standard API error response."""
 
-    success: Optional[bool] = False
-    error: Optional[str] = None
-    message: Optional[str] = None
-    detail: Optional[str] = None
-    errors: Optional[List[str]] = None
+    success: bool | None = False
+    error: str | None = None
+    message: str | None = None
+    detail: str | None = None
+    errors: list[str] | None = None
 
 
 class ZoAvatarGenerateResponse(BaseModel):
@@ -99,4 +99,4 @@ class ZoAvatarStatusResponse(BaseModel):
 
     task_id: str
     status: str
-    result: Optional[Dict[str, Any]] = None
+    result: dict[str, Any] | None = None

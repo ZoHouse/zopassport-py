@@ -1,10 +1,13 @@
 """Tests for profile module."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
+
+from zopassport.exceptions import ZoAPIError, ZoValidationError
 from zopassport.profile import ZoProfile
-from zopassport.exceptions import ZoProfileError, ZoValidationError
 from zopassport.types import ZoProfileResponse
+
 
 class TestZoProfile:
     """Tests for ZoProfile class."""
@@ -18,18 +21,14 @@ class TestZoProfile:
     @pytest.mark.asyncio
     async def test_get_profile_success(self, profile):
         """Test successful profile fetch."""
-        mock_data = {
-            "id": "user_123",
-            "first_name": "Test",
-            "last_name": "User"
-        }
+        mock_data = {"id": "user_123", "first_name": "Test", "last_name": "User"}
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = mock_data
         profile.client.request.return_value = mock_response
 
         result = await profile.get_profile("token")
-        
+
         assert result["success"] is True
         assert isinstance(result["profile"], ZoProfileResponse)
         assert result["profile"].first_name == "Test"
@@ -41,7 +40,7 @@ class TestZoProfile:
         mock_response.status_code = 500
         profile.client.request.return_value = mock_response
 
-        with pytest.raises(Exception): # Specific exception checked in implementation
+        with pytest.raises(ZoAPIError):
             await profile.get_profile("token")
 
     @pytest.mark.asyncio
@@ -54,7 +53,7 @@ class TestZoProfile:
         profile.client.request.return_value = mock_response
 
         result = await profile.update_profile("token", {"bio": "Updated bio"})
-        
+
         assert result["success"] is True
         assert result["profile"].bio == "Updated bio"
 

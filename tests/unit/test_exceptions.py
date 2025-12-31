@@ -1,23 +1,20 @@
 """Tests for exception classes."""
 
-import pytest
 from zopassport.exceptions import (
-    ZoPassportError,
+    ZoAPIError,
     ZoAuthenticationError,
+    ZoAvatarError,
+    ZoEncryptionError,
+    ZoNetworkError,
+    ZoPassportError,
+    ZoProfileError,
+    ZoRateLimitError,
+    ZoRetryExhaustedError,
+    ZoStorageError,
     ZoTokenError,
     ZoTokenExpiredError,
-    ZoNetworkError,
-    ZoAPIError,
-    ZoRateLimitError,
-    ZoConnectionError,
-    ZoTimeoutError,
     ZoValidationError,
-    ZoStorageError,
-    ZoEncryptionError,
     ZoWalletError,
-    ZoProfileError,
-    ZoAvatarError,
-    ZoRetryExhaustedError,
 )
 
 

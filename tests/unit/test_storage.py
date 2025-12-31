@@ -1,11 +1,17 @@
 """Tests for storage adapters."""
 
-import pytest
-import os
 import json
-from unittest.mock import patch, MagicMock
-from zopassport.storage import MemoryStorageAdapter, FileStorageAdapter, EncryptedFileStorageAdapter, STORAGE_KEYS
-from zopassport.exceptions import ZoStorageError, ZoEncryptionError
+import os
+
+import pytest
+
+from zopassport.exceptions import ZoEncryptionError
+from zopassport.storage import (
+    EncryptedFileStorageAdapter,
+    FileStorageAdapter,
+    MemoryStorageAdapter,
+)
+
 
 class TestMemoryStorageAdapter:
     """Tests for MemoryStorageAdapter."""
@@ -25,6 +31,7 @@ class TestMemoryStorageAdapter:
         await adapter.remove_item(key)
         assert await adapter.get_item(key) is None
 
+
 class TestFileStorageAdapter:
     """Tests for FileStorageAdapter."""
 
@@ -40,9 +47,9 @@ class TestFileStorageAdapter:
         value = "test_value"
 
         await adapter.set_item(key, value)
-        
+
         # Verify file content
-        with open(file_path, "r") as f:
+        with open(file_path) as f:
             data = json.load(f)
             assert data[key] == value
 
@@ -58,9 +65,10 @@ class TestFileStorageAdapter:
         await adapter.set_item(key, "value")
         await adapter.remove_item(key)
 
-        with open(file_path, "r") as f:
+        with open(file_path) as f:
             data = json.load(f)
             assert key not in data
+
 
 class TestEncryptedFileStorageAdapter:
     """Tests for EncryptedFileStorageAdapter."""

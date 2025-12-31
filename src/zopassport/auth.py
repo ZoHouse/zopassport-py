@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .client import ZoApiClient
 from .exceptions import ZoAPIError, ZoAuthenticationError, ZoNetworkError, ZoValidationError
@@ -18,7 +18,7 @@ class ZoAuth:
         """
         self.client = client
 
-    async def send_otp(self, country_code: str, phone_number: str) -> Dict[str, Any]:
+    async def send_otp(self, country_code: str, phone_number: str) -> dict[str, Any]:
         """
         Send OTP to phone number (Step 1 of authentication).
 
@@ -56,7 +56,7 @@ class ZoAuth:
                 return {"success": True, "message": data.get("message", "OTP sent successfully")}
 
             raise ZoAPIError(
-                data.get("message", f"Failed to send OTP"),
+                data.get("message", "Failed to send OTP"),
                 status_code=response.status_code,
                 details=data,
             )
@@ -69,9 +69,7 @@ class ZoAuth:
                 f"Failed to send OTP: {str(e)}", details={"error_type": type(e).__name__}
             ) from e
 
-    async def verify_otp(
-        self, country_code: str, phone_number: str, otp: str
-    ) -> Dict[str, Any]:
+    async def verify_otp(self, country_code: str, phone_number: str, otp: str) -> dict[str, Any]:
         """
         Verify OTP and authenticate user (Step 2 of authentication).
 
@@ -102,9 +100,7 @@ class ZoAuth:
                 "otp": otp,
             }
 
-            response = await self.client.request(
-                "POST", "/api/v1/auth/login/mobile/", json=payload
-            )
+            response = await self.client.request("POST", "/api/v1/auth/login/mobile/", json=payload)
 
             if response.status_code >= 400:
                 error_msg = self._extract_error_message(response)
@@ -149,7 +145,7 @@ class ZoAuth:
                 f"Failed to verify OTP: {str(e)}", details={"error_type": type(e).__name__}
             ) from e
 
-    async def check_login_status(self, access_token: str) -> Dict[str, Any]:
+    async def check_login_status(self, access_token: str) -> dict[str, Any]:
         """
         Check if the access token is still valid.
 
@@ -187,13 +183,13 @@ class ZoAuth:
         try:
             data = response.json()
             if "errors" in data and isinstance(data["errors"], list) and data["errors"]:
-                return data["errors"][0]
+                return str(data["errors"][0])
             if "detail" in data:
-                return data["detail"]
+                return str(data["detail"])
             if "message" in data:
-                return data["message"]
+                return str(data["message"])
             if "error" in data:
-                return data["error"]
+                return str(data["error"])
         except Exception:
             pass
         return "Authentication failed"

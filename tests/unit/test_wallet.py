@@ -1,9 +1,11 @@
 """Tests for wallet module."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from zopassport.wallet import ZoWallet
+
+import pytest
+
 from zopassport.exceptions import ZoWalletError
+from zopassport.wallet import ZoWallet
 
 
 class TestZoWallet:
