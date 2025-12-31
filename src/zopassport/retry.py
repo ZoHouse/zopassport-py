@@ -8,7 +8,7 @@ exponential backoff for network requests.
 import asyncio
 from collections.abc import Callable
 from functools import wraps
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from tenacity import (
     AsyncRetrying,
@@ -112,10 +112,13 @@ async def retry_with_backoff(
     except RetryError as e:
         # All retries exhausted
         last_exception = e.last_attempt.exception()
+        if last_exception and not isinstance(last_exception, Exception):
+            raise last_exception  # Re-raise BaseExceptions like KeyboardInterrupt
+
         raise ZoRetryExhaustedError(
             "All retry attempts exhausted",
             attempts=max_attempts,
-            last_error=last_exception,
+            last_error=cast(Exception | None, last_exception),
         ) from last_exception
 
 
