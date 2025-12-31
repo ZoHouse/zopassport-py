@@ -113,7 +113,7 @@ async def retry_with_backoff(
         # All retries exhausted
         last_exception = e.last_attempt.exception()
         if last_exception and not isinstance(last_exception, Exception):
-            raise last_exception  # Re-raise BaseExceptions like KeyboardInterrupt
+            raise last_exception from e  # Re-raise BaseExceptions like KeyboardInterrupt
 
         raise ZoRetryExhaustedError(
             "All retry attempts exhausted",
